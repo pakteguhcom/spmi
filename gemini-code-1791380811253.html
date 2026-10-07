@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Implementasi SPMI - SMPN 4 Cipeundeuy</title>
+    <!-- Tailwind CSS untuk UI/UX Modern & Responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins (Lebih tebal untuk presentasi) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        
+        /* Animasi fade-in saat di-scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Efek Glassmorphism untuk Navbar */
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        /* Teks Gradasi (Disesuaikan agar kontras tinggi) */
+        .gradient-text {
+            background: linear-gradient(90deg, #1d4ed8, #7e22ce);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Animasi Bentuk Blob Estetik untuk Foto Beranda */
+        @keyframes morph {
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            50% { border-radius: 30% 70% 70% 30% / 30% 60% 40% 70%; }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+        }
+        .blob-img {
+            animation: morph 8s ease-in-out infinite;
+            aspect-ratio: 1 / 1; 
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-200 selection:text-blue-900">
+
+    <!-- Navigasi -->
+    <nav class="fixed w-full z-50 glass shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-700 to-purple-700 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        <i class="fa-solid fa-medal"></i>
+                    </div>
+                    <span class="font-extrabold text-2xl tracking-tight text-slate-800">Mutu<span class="text-blue-700">Sajati</span></span>
+                </div>
+                
+                <!-- Menu Desktop (Teks lebih besar dan tebal) -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#sosialisasi" class="text-base font-semibold text-slate-700 hover:text-blue-700 transition">Sosialisasi</a>
+                    <a href="#siklus" class="text-base font-semibold text-slate-700 hover:text-blue-700 transition">Siklus SPMI</a>
+                    <a href="#kendala" class="text-base font-semibold text-slate-700 hover:text-blue-700 transition">Kendala & Solusi</a>
+                    <!-- Tombol Fullscreen -->
+                    <button onclick="toggleFullScreen()" class="bg-blue-100 text-blue-800 hover:bg-blue-700 hover:text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-expand" id="fullscreen-icon"></i> <span id="fullscreen-text">Fullscreen</span>
+                    </button>
+                </div>
+
+                <!-- Tombol Mobile -->
+                <div class="md:hidden flex items-center gap-4">
+                    <button onclick="toggleFullScreen()" class="text-blue-700 p-2 bg-blue-100 rounded-full">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                    <button id="mobile-menu-btn" class="text-slate-700 hover:text-blue-700 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menu Mobile Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-200 absolute w-full shadow-xl">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <a href="#sosialisasi" class="block px-3 py-4 rounded-md text-lg font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-700 border-b border-slate-100">Sosialisasi</a>
+                <a href="#siklus" class="block px-3 py-4 rounded-md text-lg font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-700 border-b border-slate-100">Siklus SPMI</a>
+                <a href="#kendala" class="block px-3 py-4 rounded-md text-lg font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-700">Kendala & Solusi</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header / Hero Section -->
+    <header class="relative pt-32 pb-20 lg:pt-36 lg:pb-32 overflow-hidden bg-white">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+            <div class="absolute top-0 right-1/4 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+        </div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-8 reveal">
+            <!-- Kolom Teks (Perbaikan Tipografi) -->
+            <div class="w-full lg:w-1/2 text-center lg:text-left mt-8 lg:mt-0">
+                <span class="inline-block py-1.5 px-4 rounded-full bg-blue-50 text-blue-700 text-sm font-bold mb-6 border border-blue-200 shadow-sm uppercase tracking-wide">
+                    Penjaminan Mutu Pendidikan
+                </span>
+                
+                <!-- Perbaikan Judul: Tanpa <br/> dan line-height optimal -->
+                <h1 class="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight mb-6 text-slate-900 leading-tight">
+                    Implementasi SPMI di <span class="gradient-text">SMPN 4 Cipeundeuy</span>
+                </h1>
+                
+                <!-- Perbaikan Paragraf: Font lebih besar (text-xl), warna lebih pekat -->
+                <p class="mt-4 max-w-xl text-lg sm:text-xl text-slate-700 font-medium mx-auto lg:mx-0 mb-10 leading-relaxed">
+                    Membangun budaya mutu pendidikan secara mandiri dan berkelanjutan melalui tahapan terstruktur mulai dari pemetaan hingga pengendalian kualitas standar pendidikan.
+                </p>
+                
+                <a href="#sosialisasi" class="inline-flex items-center gap-3 bg-blue-700 text-white px-8 py-4 rounded-full text-lg font-bold shadow-xl shadow-blue-200 hover:bg-blue-800 hover:shadow-blue-300 hover:-translate-y-1 transition-all duration-300">
+                    Mulai Eksplorasi <i class="fa-solid fa-arrow-down"></i>
+                </a>
+            </div>
+            
+            <!-- Kolom Foto Beranda Estetik -->
+            <div class="w-full lg:w-1/2 flex justify-center relative group">
+                <!-- Efek cahaya (Glow) -->
+                <div class="absolute inset-0 bg-gradient-to-tr from-blue-300 to-purple-400 blur-3xl opacity-50 rounded-full group-hover:opacity-80 transition duration-700 transform scale-75 lg:scale-90 z-0"></div>
+                <!-- Foto dengan class blob-img -->
+                <img src="WhatsApp Image 2026-04-10 at 10.33.42.jpeg" alt="Ilustrasi Sekolah dalam Genggaman" class="relative z-10 w-4/5 sm:w-3/5 lg:w-[85%] max-w-md object-cover blob-img shadow-2xl border-[6px] border-white transform transition-all duration-500 hover:scale-105">
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-32">
+
+        <!-- Bagian 1: Sosialisasi -->
+        <section id="sosialisasi" class="reveal scroll-mt-24">
+            <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+                <div class="w-full lg:w-1/2 relative group">
+                    <div class="absolute -inset-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+                    <img src="IMG_20250923_085610_537 (1).jpg" alt="Sosialisasi SPMI" class="relative rounded-2xl shadow-2xl w-full object-cover border border-slate-200 transform group-hover:scale-[1.02] transition duration-500">
+                </div>
+                <div class="w-full lg:w-1/2 space-y-6">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-blue-100 text-blue-700 mb-2">
+                        <i class="fa-solid fa-users text-2xl"></i>
+                    </div>
+                    <!-- Judul dipertegas -->
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">Sosialisasi SPMI kepada Warga Sekolah</h2>
+                    <!-- Paragraf dipertebal warnanya -->
+                    <p class="text-slate-700 text-lg sm:text-xl leading-relaxed font-medium">
+                        Tahap awal yang krusial dalam Sistem Penjaminan Mutu Internal (SPMI) adalah <b class="text-slate-900">Sosialisasi</b> yang dilaksanakan pada bulan <b class="text-slate-900">Agustus</b>. Kami memastikan seluruh pemangku kepentingan (Kepala Sekolah, Guru, Tenaga Kependidikan, dan Komite Sekolah) memiliki pemahaman yang sama.
+                    </p>
+                    <p class="text-slate-700 text-lg sm:text-xl leading-relaxed font-medium">
+                        Melalui rapat kerja dan forum diskusi yang kolaboratif, visi dan urgensi SPMI disampaikan agar terbangun komitmen bersama untuk meningkatkan mutu layanan pendidikan secara berkelanjutan.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bagian 2: Siklus SPMI -->
+        <section id="siklus" class="reveal scroll-mt-24">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-purple-700 font-bold tracking-wider uppercase text-sm bg-purple-100 px-4 py-1 rounded-full">Proses Berkelanjutan</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-4 mb-4">Pelaksanaan Siklus SPMI</h2>
+                <p class="text-slate-700 text-lg sm:text-xl font-medium">Penerapan penjaminan mutu di sekolah kami berjalan melalui 6 (enam) tahapan siklus yang terstruktur dengan target waktu dan produk yang jelas, dimulai pada bulan September.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Tahap 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 hover:shadow-2xl hover:-translate-y-2 transition duration-300 flex flex-col">
+                    <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-sm">
+                        <i class="fa-solid fa-flag"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3 text-slate-900">1. Menetapkan</h3>
+                    <p class="text-slate-700 text-base font-medium mb-6 flex-grow">Menetapkan Standar Mutu Pendidikan berdasarkan Standar Nasional Pendidikan (SNP) yang disesuaikan visi misi sekolah.</p>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 text-sm space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-regular fa-clock text-blue-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Waktu Pelaksanaan:</span> September</div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-file-signature text-green-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Produk:</span> Dokumen Kebijakan & Standar Mutu</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tahap 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 hover:shadow-2xl hover:-translate-y-2 transition duration-300 flex flex-col">
+                    <div class="w-16 h-16 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-sm">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3 text-slate-900">2. Memetakan</h3>
+                    <p class="text-slate-700 text-base font-medium mb-6 flex-grow">Memetakan mutu sekolah berdasarkan data dan hasil evaluasi untuk mengidentifikasi kekuatan & kelemahan saat ini.</p>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 text-sm space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-regular fa-clock text-blue-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Waktu Pelaksanaan:</span> Oktober</div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-file-signature text-green-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Produk:</span> Laporan Hasil Analisis Rapor Pendidikan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tahap 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 hover:shadow-2xl hover:-translate-y-2 transition duration-300 flex flex-col">
+                    <div class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-sm">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3 text-slate-900">3. Merencanakan</h3>
+                    <p class="text-slate-700 text-base font-medium mb-6 flex-grow">Menyusun perencanaan pemenuhan mutu yang dituangkan dalam rencana kerja menengah dan tahunan.</p>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 text-sm space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-regular fa-clock text-blue-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Waktu Pelaksanaan:</span> November</div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-file-signature text-green-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Produk:</span> Dokumen RKJM, RKT, dan RKAS</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tahap 4 -->
+                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 hover:shadow-2xl hover:-translate-y-2 transition duration-300 flex flex-col">
+                    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-sm">
+                        <i class="fa-solid fa-gears"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3 text-slate-900">4. Melaksanakan</h3>
+                    <p class="text-slate-700 text-base font-medium mb-6 flex-grow">Melaksanakan program dan kegiatan pemenuhan mutu sesuai dengan rencana yang telah disepakati bersama.</p>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 text-sm space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-regular fa-clock text-blue-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Waktu Pelaksanaan:</span> Sepanjang Tahun Ajaran</div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-file-signature text-green-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Produk:</span> Bukti Fisik / Laporan Kegiatan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tahap 5 -->
+                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 hover:shadow-2xl hover:-translate-y-2 transition duration-300 flex flex-col">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3 text-slate-900">5. Mengevaluasi</h3>
+                    <p class="text-slate-700 text-base font-medium mb-6 flex-grow">Mengevaluasi pelaksanaan program berkala untuk melihat capaian target dan kesesuaian standar.</p>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 text-sm space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-regular fa-clock text-blue-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Waktu Pelaksanaan:</span> Akhir Semester/Tahun</div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-file-signature text-green-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Produk:</span> Laporan Audit Mutu Internal</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tahap 6 -->
+                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 hover:shadow-2xl hover:-translate-y-2 transition duration-300 flex flex-col">
+                    <div class="w-16 h-16 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-sm">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3 text-slate-900">6. Mengendalikan</h3>
+                    <p class="text-slate-700 text-base font-medium mb-6 flex-grow">Mengendalikan capaian mutu dengan melakukan perbaikan tindak lanjut pada siklus berikutnya.</p>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 text-sm space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-regular fa-clock text-blue-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Waktu Pelaksanaan:</span> Raker Tahun Berikutnya</div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-file-signature text-green-600 mt-1 text-base"></i>
+                            <div><span class="font-bold text-slate-800 block">Produk:</span> Rekomendasi & Rencana Tindak Lanjut</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bagian 3: Kendala & Permasalahan beserta Solusi -->
+        <section id="kendala" class="reveal scroll-mt-24 pb-20">
+            <div class="max-w-6xl mx-auto bg-white p-8 md:p-14 rounded-3xl shadow-2xl border border-slate-200 relative overflow-hidden">
+                <!-- Elemen dekoratif background -->
+                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-red-50 rounded-full opacity-70 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-emerald-50 rounded-full opacity-70 pointer-events-none"></div>
+
+                <div class="text-center space-y-4 mb-12 relative z-10">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-100 text-slate-700 mb-2 shadow-sm border border-slate-200">
+                        <i class="fa-solid fa-scale-balanced text-3xl"></i>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">Kendala & Alternatif Solusi</h2>
+                    <p class="text-slate-700 text-lg sm:text-xl font-medium leading-relaxed max-w-3xl mx-auto">
+                        Evaluasi implementasi SPMI menghasilkan temuan berupa beberapa kendala di lapangan. Oleh karena itu, kami merumuskan langkah solutif agar penjaminan mutu tetap berjalan optimal.
+                    </p>
+                </div>
+                
+                <!-- Grid Card untuk Kendala dan Solusi -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                    
+                    <!-- Kartu 1 -->
+                    <div class="bg-white flex flex-col p-6 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl transition duration-300">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-xl bg-red-100 flex items-center justify-center text-red-600 flex-shrink-0">
+                                <i class="fa-solid fa-users-slash text-xl"></i>
+                            </div>
+                            <h3 class="font-extrabold text-slate-900 text-lg leading-tight">Pemahaman Belum Merata</h3>
+                        </div>
+                        <p class="text-slate-700 font-medium text-base leading-relaxed mb-6">
+                            Sebagian warga sekolah masih menganggap SPMI sekadar sebagai kewajiban administratif, bukan sebagai fondasi budaya mutu.
+                        </p>
+                        <!-- Solusi -->
+                        <div class="mt-auto border-t border-emerald-100 pt-4 bg-emerald-50 -mx-6 -mb-6 p-6 rounded-b-2xl">
+                            <div class="flex items-center gap-2 mb-2 text-emerald-800">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <span class="font-extrabold text-base">Alternatif Solusi</span>
+                            </div>
+                            <p class="text-emerald-900 font-medium text-base leading-relaxed">
+                                Mengadakan <i>In-House Training</i> (IHT) secara berkala dan sosialisasi berkelanjutan mengenai esensi budaya mutu, bukan sekadar administrasi.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Kartu 2 -->
+                    <div class="bg-white flex flex-col p-6 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl transition duration-300">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 flex-shrink-0">
+                                <i class="fa-solid fa-stopwatch text-xl"></i>
+                            </div>
+                            <h3 class="font-extrabold text-slate-900 text-lg leading-tight">Keterbatasan Waktu</h3>
+                        </div>
+                        <p class="text-slate-700 font-medium text-base leading-relaxed mb-6">
+                            Beban kerja operasional guru cukup tinggi, berbenturan dengan waktu pelaksanaan pemetaan dan evaluasi yang butuh fokus ekstra.
+                        </p>
+                        <!-- Solusi -->
+                        <div class="mt-auto border-t border-emerald-100 pt-4 bg-emerald-50 -mx-6 -mb-6 p-6 rounded-b-2xl">
+                            <div class="flex items-center gap-2 mb-2 text-emerald-800">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <span class="font-extrabold text-base">Alternatif Solusi</span>
+                            </div>
+                            <p class="text-emerald-900 font-medium text-base leading-relaxed">
+                                Membentuk Tim Penjaminan Mutu (TPMPS) khusus dengan SK dan mengintegrasikan jadwal SPMI ke dalam Kalender Akademik secara resmi.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Kartu 3 -->
+                    <div class="bg-white flex flex-col p-6 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl transition duration-300">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-xl bg-yellow-100 flex items-center justify-center text-yellow-600 flex-shrink-0">
+                                <i class="fa-solid fa-wallet text-xl"></i>
+                            </div>
+                            <h3 class="font-extrabold text-slate-900 text-lg leading-tight">Kendala Penganggaran</h3>
+                        </div>
+                        <p class="text-slate-700 font-medium text-base leading-relaxed mb-6">
+                            Tidak semua rencana pemenuhan mutu di RKAS bisa langsung terealisasi akibat terbatasnya pagu anggaran sekolah.
+                        </p>
+                        <!-- Solusi -->
+                        <div class="mt-auto border-t border-emerald-100 pt-4 bg-emerald-50 -mx-6 -mb-6 p-6 rounded-b-2xl">
+                            <div class="flex items-center gap-2 mb-2 text-emerald-800">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <span class="font-extrabold text-base">Alternatif Solusi</span>
+                            </div>
+                            <p class="text-emerald-900 font-medium text-base leading-relaxed">
+                                Menyusun skala prioritas program yang paling mendesak di RKAS, efisiensi dana BOS, dan pelibatan Komite Sekolah.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-10 mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-600 font-medium">
+            <div class="flex justify-center items-center gap-3 mb-4 text-2xl">
+                <i class="fa-solid fa-medal text-blue-700"></i>
+                <span class="font-extrabold text-slate-800">Mutu<span class="text-blue-700">Sajati</span></span>
+            </div>
+            <p class="mb-2 text-slate-800">&copy; 2026 SMPN 4 Cipeundeuy. Sistem Penjaminan Mutu Internal (SPMI).</p>
+            <p class="text-base text-slate-500">Berkomitmen Mewujudkan Pendidikan yang Berkualitas dan Berkelanjutan.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Khusus -->
+    <script>
+        // Fitur Menu Mobile
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Fitur Fullscreen
+        function toggleFullScreen() {
+            const icon = document.getElementById('fullscreen-icon');
+            const text = document.getElementById('fullscreen-text');
+
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+                if(icon) { icon.classList.replace('fa-expand', 'fa-compress'); }
+                if(text) { text.textContent = 'Exit Fullscreen'; }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    if(icon) { icon.classList.replace('fa-compress', 'fa-expand'); }
+                    if(text) { text.textContent = 'Fullscreen'; }
+                }
+            }
+        }
+
+        // Animasi Reveal saat Scroll
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal(); // Trigger saat load
+    </script>
+</body>
+</html>
